@@ -4,11 +4,7 @@
             [clojure.java.io :as io]
             [clojure.java.shell :as sh]
             [clojure.string :as s]
-            [leiningen.core.main]))
-
-(defn env-file
-  [project]
-  (io/file (:root project) ".lein-docker-env"))
+            [lein-environ.plugin]))
 
 (defn docker-compose-file
   [project]
@@ -49,18 +45,15 @@
 (defn start-services!
   []
   (let [output (sh/sh "docker-compose" "up" "-d")]
+    (println (:out output))
     (when-not (zero? (:exit output))
       (println "WARNING: Failed to bring up docker-compose services"))))
 
-(defn write-env-to-file!
-  [project]
-  (spit (env-file project) (pr-str (discover-docker-ports project))))
-
-(defn docker-compose-task
-  [func task-name project args]
+(defn merge-docker-env-vars
+  [func project]
   (start-services!)
-  (write-env-to-file! project)
-  (func task-name project args))
+  (merge (func project)
+         (discover-docker-ports project)))
 
 (defn hooks []
-  (add-hook #'leiningen.core.main/apply-task #'docker-compose-task))
+  (add-hook #'lein-environ.plugin/read-env #'merge-docker-env-vars))
