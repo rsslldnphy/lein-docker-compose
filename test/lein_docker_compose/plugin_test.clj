@@ -1,6 +1,6 @@
 (ns lein-docker-compose.plugin-test
   (:require [clojure.test :refer :all]
-            [clj-yaml.core :as yaml]
+            [yaml.core :as yaml]
             [clojure.java.io :as io]
             [clojure.string :as s]
             [lein-docker-compose.plugin :as l]))

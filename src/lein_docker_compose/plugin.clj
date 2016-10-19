@@ -1,6 +1,6 @@
 (ns lein-docker-compose.plugin
   (:use [robert.hooke :only (add-hook)])
-  (:require [clj-yaml.core :as yaml]
+  (:require [yaml.core :as yaml]
             [clojure.java.io :as io]
             [clojure.java.shell :as sh]
             [clojure.string :as s]
@@ -42,16 +42,8 @@
          (map (juxt config-key discover-port-mapping))
          (into {}))))
 
-(defn start-services!
-  []
-  (let [output (sh/sh "docker-compose" "up" "-d")]
-    (println (:out output))
-    (when-not (zero? (:exit output))
-      (println "WARNING: Failed to bring up docker-compose services"))))
-
 (defn merge-docker-env-vars
   [func project]
-  (start-services!)
   (merge (func project)
          (discover-docker-ports project)))
 
